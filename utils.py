@@ -1,10 +1,11 @@
-from serial.tools import list_ports
-import serial
 import logging
 import os
 import sys
 import time
 from pathlib import Path
+
+import serial
+from serial.tools import list_ports
 
 logger = logging.getLogger(__name__)
 
@@ -126,15 +127,13 @@ class FrameError(Exception):
     """Raised when the bootloader's echo doesn't match what was sent,
     or when a response never arrives."""
 
-    pass
-
 
 def send_frame(
     ser,
     record_type: int,
     data: bytes = b"",
     load_offset: int = 0x0000,
-    response_timeout: float = None,
+    response_timeout: float | None = None,
 ) -> bytes:
     """
     Send one ISP command frame and return its raw response bytes.
