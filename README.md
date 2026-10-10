@@ -4,43 +4,54 @@ A Python In-System Programmer (ISP) for 8051-family microcontrollers with the At
 
 ## What you need
 
-- **Python 3.13 or newer**
-- **[uv](https://docs.astral.sh/uv/)** (recommended) or `pip`
+- **[uv](https://docs.astral.sh/uv/)**, the only tool you need to install. It fetches Python 3.13+ and pyISP's dependencies for you.
+- **git**, which uv uses to download pyISP
 - An 8051 board with the serial bootloader, connected to your computer through a serial or USB-to-serial adapter
 - One or more compiled Intel HEX (`.hex`) files
 
 ## Installation
 
-1. Clone the repository and enter it:
+1. **Install uv** (one time):
 
    ```sh
-   git clone <repo-url> pyISP
-   cd pyISP
+   # macOS / Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
 
-2. Install dependencies.
+   ```powershell
+   # Windows (PowerShell)
+   powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
 
-   **With uv (recommended):**
+   Then open a new terminal so `uv` is on your `PATH`.
+
+2. **Install pyISP**:
 
    ```sh
-   uv sync
+   uv tool install git+https://github.com/HartnettMatt/pyISP.git
    ```
 
-   **With pip:**
+   If `pyisp` isn't found afterward, run `uv tool update-shell` and open a new terminal.
+
+3. **Check that it works**:
 
    ```sh
-   python3 -m venv .venv
-   source .venv/bin/activate        # Windows: .venv\Scripts\activate
-   pip install pyserial
+   pyisp --help
    ```
 
-3. Check that it works:
+You don't need to create a virtual environment or run `uv init`. `uv tool install` sets up an isolated environment for pyISP automatically.
 
-   ```sh
-   uv run cli.py --help             # or: python cli.py --help
-   ```
+To get the latest version later:
 
-> The commands below use `uv run cli.py`. If you installed with pip, use `python cli.py` instead (with your virtual environment activated).
+```sh
+uv tool upgrade pyisp
+```
+
+To remove it:
+
+```sh
+uv tool uninstall pyisp
+```
 
 ## Finding your serial port
 
@@ -49,7 +60,7 @@ pyISP needs to know which serial device your board is on. You can either pick it
 List the available ports and choose one:
 
 ```sh
-uv run cli.py --get-port
+pyisp --get-port
 ```
 
 Typical port names:
@@ -75,22 +86,22 @@ Put the board into bootloader mode (see your board's documentation — this usua
 
 ```sh
 # Probe the chip without programming anything
-uv run cli.py
+pyisp
 
 # Program a hex file
-uv run cli.py path/to/program.hex
+pyisp path/to/program.hex
 
 # Erase the whole chip first, then program
-uv run cli.py --erase path/to/program.hex
+pyisp --erase path/to/program.hex
 
 # Merge several hex files into one image and program it
-uv run cli.py bootstrap.hex app.hex
+pyisp bootstrap.hex app.hex
 
 # Interactively choose hex file(s) from a directory tree
-uv run cli.py --pick build/
+pyisp --pick build/
 
 # Use a different baud rate and show detailed logging
-uv run cli.py -br 19200 -l DEBUG program.hex
+pyisp -br 19200 -l DEBUG program.hex
 ```
 
 ### Options
@@ -113,6 +124,17 @@ uv run cli.py -br 19200 -l DEBUG program.hex
 - **"Hex file reaches ... beyond Flash end"** — your program is larger than the chip's Flash (default limit `0x7FFF`).
 - **Chip keeps booting into the bootloader** — programming must finish fully so the boot status byte gets set; re-run the programming step and watch the log for errors (`-l DEBUG` helps).
 - **Anything else** — rerun with `-l DEBUG` and include the output when asking for help.
+
+## Development
+
+To work on pyISP itself, clone the repository and run it from source with uv:
+
+```sh
+git clone https://github.com/HartnettMatt/pyISP.git
+cd pyISP
+uv sync
+uv run pyisp --help
+```
 
 ## Project layout
 
