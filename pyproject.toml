@@ -1,10 +1,22 @@
 [project]
 name = "pyisp"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python based 8051 ISP programmer over RS232"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = ["pyserial>=3.5", "ruff>=0.16.10"]
+dependencies = ["pyserial>=3.5"]
 
+[project.scripts]
+pyisp = "cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Modules use flat top-level imports (e.g. `from main import main`).
+[tool.hatch.build.targets.wheel]
+only-include = ["cli.py", "main.py", "program.py", "utils.py"]
+
+# Rebuild the installed copy when the source changes.
 [tool.uv]
-package = false
+cache-keys = [{ file = "pyproject.toml" }, { file = "*.py" }]
