@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import termios
 import time
 from pathlib import Path
 
@@ -54,6 +55,13 @@ def open_serial_port(port, baudrate=9600, timeout=2):
         )
     except serial.SerialException as e:
         logger.error(f"Failed to open {port}: {e}")
+        return None
+    except termios.error as e:
+        logger.error(
+            f"Failed to configure {port}: {e}. The USB-serial driver is "
+            "rejecting the port settings. Unplug the USB serial adapter, "
+            "plug it back in, then try again."
+        )
         return None
 
     logger.info(f"Opened {port} at {baudrate} baud, is_open={ser.is_open}")
